@@ -49,14 +49,11 @@ export default function TransactionForm() {
 
   const createTransaction = useMutation({
     mutationFn: async (data: TransactionFormData) => {
-      console.log('Submitting transaction data:', data);
       const response = await apiRequest('POST', '/api/transactions', {
         ...data,
         amount: parseFloat(data.amount).toString(),
       });
-      const result = await response.json();
-      console.log('Transaction response:', result);
-      return result;
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
@@ -67,8 +64,7 @@ export default function TransactionForm() {
         description: "Your transaction has been saved successfully.",
       });
     },
-    onError: (error) => {
-      console.error('Transaction error:', error);
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to save transaction. Please try again.",
@@ -78,20 +74,13 @@ export default function TransactionForm() {
   });
 
   const onSubmit = (data: TransactionFormData) => {
-    console.log('Form submitted with data:', data);
-    console.log('Form errors:', form.formState.errors);
     createTransaction.mutate(data);
   };
 
   const transactionType = form.watch('type');
   const filteredCategories = categories.filter(cat => cat.type === transactionType);
   
-  // Debug logs
-  if (transactionModalOpen) {
-    console.log('Transaction type:', transactionType);
-    console.log('All categories:', categories);
-    console.log('Filtered categories:', filteredCategories);
-  }
+
 
   return (
     <Dialog open={transactionModalOpen} onOpenChange={setTransactionModalOpen}>

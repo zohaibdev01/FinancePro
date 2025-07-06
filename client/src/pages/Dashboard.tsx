@@ -32,6 +32,17 @@ export default function Dashboard() {
 
   // Calculate dashboard statistics
   const calculateStats = (): DashboardStats => {
+    if (!transactions || transactions.length === 0) {
+      return {
+        totalBalance: 0,
+        monthlyIncome: 0,
+        monthlyExpenses: 0,
+        savingsProgress: 0,
+        incomeChange: 0,
+        expenseChange: 0,
+      };
+    }
+
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     
@@ -73,6 +84,10 @@ export default function Dashboard() {
 
   // Calculate budget progress
   const calculateBudgetProgress = (): BudgetWithSpent[] => {
+    if (!budgets || !categories || !transactions) {
+      return [];
+    }
+    
     return budgets.map(budget => {
       const category = categories.find(c => c.id === budget.categoryId);
       const spent = transactions

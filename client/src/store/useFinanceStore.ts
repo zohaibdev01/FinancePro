@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { User } from '@shared/schema';
+import type { User, Transaction, Category, Budget, SavingsGoal } from '@shared/schema';
 
 interface AuthState {
   user: User | null;
@@ -19,6 +19,28 @@ interface UIState {
   setTransactionModalOpen: (open: boolean) => void;
   setBudgetModalOpen: (open: boolean) => void;
   setSavingsGoalModalOpen: (open: boolean) => void;
+}
+
+interface DataState {
+  transactions: Transaction[];
+  categories: Category[];
+  budgets: Budget[];
+  savingsGoals: SavingsGoal[];
+  setTransactions: (transactions: Transaction[]) => void;
+  setCategories: (categories: Category[]) => void;
+  setBudgets: (budgets: Budget[]) => void;
+  setSavingsGoals: (savingsGoals: SavingsGoal[]) => void;
+  addTransaction: (transaction: Transaction) => void;
+  addCategory: (category: Category) => void;
+  addBudget: (budget: Budget) => void;
+  addSavingsGoal: (goal: SavingsGoal) => void;
+  updateTransaction: (id: number, transaction: Partial<Transaction>) => void;
+  updateBudget: (id: number, budget: Partial<Budget>) => void;
+  updateSavingsGoal: (id: number, goal: Partial<SavingsGoal>) => void;
+  deleteTransaction: (id: number) => void;
+  deleteBudget: (id: number) => void;
+  deleteSavingsGoal: (id: number) => void;
+  clearData: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -46,3 +68,63 @@ export const useUIStore = create<UIState>()((set) => ({
   setBudgetModalOpen: (open) => set({ budgetModalOpen: open }),
   setSavingsGoalModalOpen: (open) => set({ savingsGoalModalOpen: open }),
 }));
+
+export const useDataStore = create<DataState>()(
+  persist(
+    (set, get) => ({
+      transactions: [],
+      categories: [],
+      budgets: [],
+      savingsGoals: [],
+      setTransactions: (transactions) => set({ transactions }),
+      setCategories: (categories) => set({ categories }),
+      setBudgets: (budgets) => set({ budgets }),
+      setSavingsGoals: (savingsGoals) => set({ savingsGoals }),
+      addTransaction: (transaction) => set((state) => ({ 
+        transactions: [...state.transactions, transaction] 
+      })),
+      addCategory: (category) => set((state) => ({ 
+        categories: [...state.categories, category] 
+      })),
+      addBudget: (budget) => set((state) => ({ 
+        budgets: [...state.budgets, budget] 
+      })),
+      addSavingsGoal: (goal) => set((state) => ({ 
+        savingsGoals: [...state.savingsGoals, goal] 
+      })),
+      updateTransaction: (id, updates) => set((state) => ({
+        transactions: state.transactions.map(t => 
+          t.id === id ? { ...t, ...updates } : t
+        )
+      })),
+      updateBudget: (id, updates) => set((state) => ({
+        budgets: state.budgets.map(b => 
+          b.id === id ? { ...b, ...updates } : b
+        )
+      })),
+      updateSavingsGoal: (id, updates) => set((state) => ({
+        savingsGoals: state.savingsGoals.map(g => 
+          g.id === id ? { ...g, ...updates } : g
+        )
+      })),
+      deleteTransaction: (id) => set((state) => ({
+        transactions: state.transactions.filter(t => t.id !== id)
+      })),
+      deleteBudget: (id) => set((state) => ({
+        budgets: state.budgets.filter(b => b.id !== id)
+      })),
+      deleteSavingsGoal: (id) => set((state) => ({
+        savingsGoals: state.savingsGoals.filter(g => g.id !== id)
+      })),
+      clearData: () => set({
+        transactions: [],
+        categories: [],
+        budgets: [],
+        savingsGoals: [],
+      }),
+    }),
+    {
+      name: 'finance-data',
+    }
+  )
+);

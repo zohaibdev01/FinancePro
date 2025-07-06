@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useDataStore } from '@/store/useFinanceStore';
 import Layout from '@/components/layout/Layout';
 import StatsCards from '@/components/dashboard/StatsCards';
 import MonthlyChart from '@/components/charts/MonthlyChart';
@@ -12,20 +13,45 @@ import type { Transaction, Category, Budget, SavingsGoal } from '@shared/schema'
 import type { DashboardStats, ChartData, BudgetWithSpent } from '@/types/finance';
 
 export default function Dashboard() {
-  const { data: transactions = [], isLoading: transactionsLoading } = useQuery<Transaction[]>({
+  // Get data from local store instead of API
+  const { 
+    transactions = [],
+    categories = [],
+    budgets = [],
+    savingsGoals = [],
+    setTransactions,
+    setCategories,
+    setBudgets,
+    setSavingsGoals
+  } = useDataStore();
+
+  // Sync with server data (fetch once and store locally)
+  const { data: serverTransactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
     queryKey: ['/api/transactions'],
+    onSuccess: (data) => {
+      if (data) setTransactions(data);
+    },
   });
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+  const { data: serverCategories, isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
+    onSuccess: (data) => {
+      if (data) setCategories(data);
+    },
   });
 
-  const { data: budgets = [], isLoading: budgetsLoading } = useQuery<Budget[]>({
+  const { data: serverBudgets, isLoading: budgetsLoading } = useQuery<Budget[]>({
     queryKey: ['/api/budgets'],
+    onSuccess: (data) => {
+      if (data) setBudgets(data);
+    },
   });
 
-  const { data: savingsGoals = [], isLoading: savingsGoalsLoading } = useQuery<SavingsGoal[]>({
+  const { data: serverSavingsGoals, isLoading: savingsGoalsLoading } = useQuery<SavingsGoal[]>({
     queryKey: ['/api/savings-goals'],
+    onSuccess: (data) => {
+      if (data) setSavingsGoals(data);
+    },
   });
 
   const isLoading = transactionsLoading || categoriesLoading || budgetsLoading || savingsGoalsLoading;

@@ -45,7 +45,7 @@ export default function RecentTransactions({ transactions, categories }: RecentT
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.slice(0, 5).map((transaction) => (
+              {(transactions || []).slice(0, 5).map((transaction) => (
                 <TableRow key={transaction.id} className="hover:bg-gray-50">
                   <TableCell>
                     <div className="flex items-center">

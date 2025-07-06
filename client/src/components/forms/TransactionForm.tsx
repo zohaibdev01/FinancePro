@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useUIStore, useAuthStore } from '@/store/useFinanceStore';
+import { useUIStore, useAuthStore, useDataStore } from '@/store/useFinanceStore';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { insertTransactionSchema } from '@shared/schema';
@@ -28,6 +28,7 @@ type TransactionFormData = z.infer<typeof transactionFormSchema>;
 export default function TransactionForm() {
   const { transactionModalOpen, setTransactionModalOpen } = useUIStore();
   const { token } = useAuthStore();
+  const { categories = [], addTransaction } = useDataStore();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -42,18 +43,38 @@ export default function TransactionForm() {
     },
   });
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
-    enabled: transactionModalOpen,
-  });
-
   const createTransaction = useMutation({
     mutationFn: async (data: TransactionFormData) => {
-      const response = await apiRequest('POST', '/api/transactions', {
-        ...data,
+      // Create a unique ID for the transaction
+      const newId = Date.now();
+      const newTransaction = {
+        id: newId,
+        userId: 1, // placeholder user ID
+        type: data.type,
+        description: data.description,
         amount: parseFloat(data.amount).toString(),
-      });
-      return response.json();
+        categoryId: data.categoryId,
+        date: data.date,
+        recurring: data.recurring || false,
+        recurringPeriod: data.recurringPeriod || 'monthly',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      // Add to local store
+      addTransaction(newTransaction);
+      
+      // Also sync to server
+      try {
+        const response = await apiRequest('POST', '/api/transactions', {
+          ...data,
+          amount: parseFloat(data.amount).toString(),
+        });
+        return response.json();
+      } catch (error) {
+        // If server fails, still keep local data
+        return newTransaction;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });

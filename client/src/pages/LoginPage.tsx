@@ -119,12 +119,6 @@ export default function LoginPage() {
               Sign up
             </Link>
           </div>
-
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-gray-600 text-center">
-              Demo account: demo@financetracker.com / password
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

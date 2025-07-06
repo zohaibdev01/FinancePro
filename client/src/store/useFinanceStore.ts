@@ -73,7 +73,13 @@ export const useDataStore = create<DataState>()(
   persist(
     (set, get) => ({
       transactions: [],
-      categories: [],
+      categories: [
+        { id: 1, userId: 1, name: 'Salary', type: 'income', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 2, userId: 1, name: 'Freelance', type: 'income', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 3, userId: 1, name: 'Food', type: 'expense', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 4, userId: 1, name: 'Transportation', type: 'expense', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 5, userId: 1, name: 'Entertainment', type: 'expense', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+      ],
       budgets: [],
       savingsGoals: [],
       setTransactions: (transactions) => set({ transactions }),

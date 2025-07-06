@@ -55,24 +55,15 @@ export default function SavingsGoalForm() {
       
       addSavingsGoal(newGoal);
       
-      try {
-        const response = await apiRequest('POST', '/api/savings-goals', {
-          ...data,
-          targetAmount: parseFloat(data.targetAmount).toString(),
-          currentAmount: parseFloat(data.currentAmount || '0').toString(),
-        });
-        return response.json();
-      } catch (error) {
-        return newGoal;
-      }
+      // Return local savings goal immediately - focus on local storage
+      return newGoal;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/savings-goals'] });
       setSavingsGoalModalOpen(false);
       form.reset();
       toast({
         title: "Savings goal created",
-        description: "Your savings goal has been saved successfully.",
+        description: "Your savings goal has been saved to local storage.",
       });
     },
     onError: () => {

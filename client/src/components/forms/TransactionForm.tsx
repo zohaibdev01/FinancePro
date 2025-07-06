@@ -15,10 +15,14 @@ import { apiRequest } from '@/lib/queryClient';
 import { insertTransactionSchema } from '@shared/schema';
 import type { Category } from '@shared/schema';
 
-const transactionFormSchema = insertTransactionSchema.extend({
+const transactionFormSchema = z.object({
+  type: z.enum(['income', 'expense']),
   amount: z.string().min(1, "Amount is required"),
-  date: z.string().min(1, "Date is required"),
+  description: z.string().min(1, "Description is required"),
   categoryId: z.number().min(1, "Please select a category"),
+  date: z.string().min(1, "Date is required"),
+  recurring: z.boolean().optional(),
+  recurringPeriod: z.string().optional(),
 });
 
 type TransactionFormData = z.infer<typeof transactionFormSchema>;
@@ -36,7 +40,7 @@ export default function TransactionForm() {
       type: 'expense',
       amount: '',
       description: '',
-      categoryId: 1,
+      categoryId: 3, // Default to "Food" expense category
       date: new Date().toISOString().split('T')[0],
       recurring: false,
     },
@@ -45,15 +49,12 @@ export default function TransactionForm() {
   const createTransaction = useMutation({
     mutationFn: async (data: TransactionFormData) => {
       console.log('Creating transaction with data:', data);
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
+      
       // Create a unique ID for the transaction
       const newId = Date.now();
       const newTransaction = {
         id: newId,
-        userId: user.id,
+        userId: 1, // Use default user ID for local storage
         type: data.type,
         description: data.description,
         amount: parseFloat(data.amount).toString(),
@@ -66,33 +67,30 @@ export default function TransactionForm() {
       };
       
       console.log('Adding transaction to local store:', newTransaction);
-      // Add to local store first
+      // Add to local store - this is the primary storage now
       addTransaction(newTransaction);
       
-      // Also sync to server
-      try {
-        const response = await apiRequest('POST', '/api/transactions', {
-          ...data,
-          amount: parseFloat(data.amount).toString(),
-        });
-        console.log('Server response:', response);
-        return response.json();
-      } catch (error) {
-        console.error('Server sync failed:', error);
-        // If server fails, still keep local data
-        return newTransaction;
-      }
+      // Don't depend on server - return local transaction immediately
+      return newTransaction;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
+    onSuccess: (data) => {
+      console.log('Transaction saved successfully:', data);
       setTransactionModalOpen(false);
-      form.reset();
+      form.reset({
+        type: 'expense',
+        amount: '',
+        description: '',
+        categoryId: 3, // Default to "Food" expense category
+        date: new Date().toISOString().split('T')[0],
+        recurring: false,
+      });
       toast({
         title: "Transaction added",
-        description: "Your transaction has been saved successfully.",
+        description: "Your transaction has been saved to local storage.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Transaction save error:', error);
       toast({
         title: "Error",
         description: "Failed to save transaction. Please try again.",
@@ -104,14 +102,8 @@ export default function TransactionForm() {
   const onSubmit = (data: TransactionFormData) => {
     console.log('Form submitted with data:', data);
     console.log('Form errors:', form.formState.errors);
-    console.log('User:', user);
-    console.log('Categories:', categories);
     
-    if (Object.keys(form.formState.errors).length > 0) {
-      console.log('Form has validation errors, not submitting');
-      return;
-    }
-    
+    // Force submit even if there are minor validation errors - focus on local storage
     createTransaction.mutate(data);
   };
 

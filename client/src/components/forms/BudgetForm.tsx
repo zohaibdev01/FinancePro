@@ -50,23 +50,15 @@ export default function BudgetForm() {
       
       addBudget(newBudget);
       
-      try {
-        const response = await apiRequest('POST', '/api/budgets', {
-          ...data,
-          amount: parseFloat(data.amount).toString(),
-        });
-        return response.json();
-      } catch (error) {
-        return newBudget;
-      }
+      // Return local budget immediately - focus on local storage
+      return newBudget;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/budgets'] });
       setBudgetModalOpen(false);
       form.reset();
       toast({
         title: "Budget created",
-        description: "Your budget has been saved successfully.",
+        description: "Your budget has been saved to local storage.",
       });
     },
     onError: () => {

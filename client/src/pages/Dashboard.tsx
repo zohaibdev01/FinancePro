@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useDataStore } from '@/store/useFinanceStore';
 import Layout from '@/components/layout/Layout';
@@ -28,31 +29,36 @@ export default function Dashboard() {
   // Sync with server data (fetch once and store locally)
   const { data: serverTransactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
     queryKey: ['/api/transactions'],
-    onSuccess: (data) => {
-      if (data) setTransactions(data);
-    },
   });
 
   const { data: serverCategories, isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
-    onSuccess: (data) => {
-      if (data) setCategories(data);
-    },
   });
 
   const { data: serverBudgets, isLoading: budgetsLoading } = useQuery<Budget[]>({
     queryKey: ['/api/budgets'],
-    onSuccess: (data) => {
-      if (data) setBudgets(data);
-    },
   });
 
   const { data: serverSavingsGoals, isLoading: savingsGoalsLoading } = useQuery<SavingsGoal[]>({
     queryKey: ['/api/savings-goals'],
-    onSuccess: (data) => {
-      if (data) setSavingsGoals(data);
-    },
   });
+
+  // Sync server data to local store when available
+  React.useEffect(() => {
+    if (serverTransactions) setTransactions(serverTransactions);
+  }, [serverTransactions, setTransactions]);
+
+  React.useEffect(() => {
+    if (serverCategories) setCategories(serverCategories);
+  }, [serverCategories, setCategories]);
+
+  React.useEffect(() => {
+    if (serverBudgets) setBudgets(serverBudgets);
+  }, [serverBudgets, setBudgets]);
+
+  React.useEffect(() => {
+    if (serverSavingsGoals) setSavingsGoals(serverSavingsGoals);
+  }, [serverSavingsGoals, setSavingsGoals]);
 
   const isLoading = transactionsLoading || categoriesLoading || budgetsLoading || savingsGoalsLoading;
 

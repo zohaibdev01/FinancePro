@@ -18,9 +18,7 @@ import type { Category } from '@shared/schema';
 const transactionFormSchema = insertTransactionSchema.extend({
   amount: z.string().min(1, "Amount is required"),
   date: z.string().min(1, "Date is required"),
-}).refine((data) => data.categoryId && data.categoryId > 0, {
-  message: "Category is required",
-  path: ["categoryId"],
+  categoryId: z.number().min(1, "Category is required"),
 });
 
 type TransactionFormData = z.infer<typeof transactionFormSchema>;
@@ -38,6 +36,7 @@ export default function TransactionForm() {
       type: 'expense',
       amount: '',
       description: '',
+      categoryId: 0,
       date: new Date().toISOString().split('T')[0],
       recurring: false,
     },
@@ -169,9 +168,7 @@ export default function TransactionForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categoriesLoading ? (
-                        <SelectItem value="loading" disabled>Loading categories...</SelectItem>
-                      ) : filteredCategories.length === 0 ? (
+                      {filteredCategories.length === 0 ? (
                         <SelectItem value="none" disabled>No categories available</SelectItem>
                       ) : (
                         filteredCategories.map((category) => (

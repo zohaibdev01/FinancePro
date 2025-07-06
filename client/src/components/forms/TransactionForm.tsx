@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -18,6 +18,7 @@ import type { Category } from '@shared/schema';
 const transactionFormSchema = insertTransactionSchema.extend({
   amount: z.string().min(1, "Amount is required"),
   date: z.string().min(1, "Date is required"),
+  categoryId: z.number().min(1, "Category is required"),
 });
 
 type TransactionFormData = z.infer<typeof transactionFormSchema>;
@@ -40,7 +41,7 @@ export default function TransactionForm() {
     },
   });
 
-  const { data: categories = [] } = useQuery<Category[]>({
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
     enabled: transactionModalOpen,
   });
@@ -141,11 +142,17 @@ export default function TransactionForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {filteredCategories.map((category) => (
-                        <SelectItem key={category.id} value={category.id.toString()}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
+                      {categoriesLoading ? (
+                        <SelectItem value="loading" disabled>Loading categories...</SelectItem>
+                      ) : filteredCategories.length === 0 ? (
+                        <SelectItem value="none" disabled>No categories available</SelectItem>
+                      ) : (
+                        filteredCategories.map((category) => (
+                          <SelectItem key={category.id} value={category.id.toString()}>
+                            {category.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

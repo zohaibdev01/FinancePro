@@ -84,14 +84,153 @@ export class MemStorage implements IStorage {
     const defaultCategories: Category[] = [
       { id: this.currentCategoryId++, name: "Salary", type: "income", userId: defaultUser.id },
       { id: this.currentCategoryId++, name: "Freelance", type: "income", userId: defaultUser.id },
+      { id: this.currentCategoryId++, name: "Investment", type: "income", userId: defaultUser.id },
       { id: this.currentCategoryId++, name: "Groceries", type: "expense", userId: defaultUser.id },
       { id: this.currentCategoryId++, name: "Transportation", type: "expense", userId: defaultUser.id },
       { id: this.currentCategoryId++, name: "Entertainment", type: "expense", userId: defaultUser.id },
       { id: this.currentCategoryId++, name: "Shopping", type: "expense", userId: defaultUser.id },
+      { id: this.currentCategoryId++, name: "Bills", type: "expense", userId: defaultUser.id },
+      { id: this.currentCategoryId++, name: "Healthcare", type: "expense", userId: defaultUser.id },
     ];
 
     defaultCategories.forEach(category => {
       this.categories.set(category.id, category);
+    });
+
+    // Create sample transactions for demo user
+    const sampleTransactions = [
+      {
+        id: this.currentTransactionId++,
+        userId: defaultUser.id,
+        type: "income",
+        amount: "5200.00",
+        description: "Monthly Salary",
+        categoryId: defaultCategories[0].id,
+        date: "2025-01-01",
+        recurring: true,
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentTransactionId++,
+        userId: defaultUser.id,
+        type: "expense",
+        amount: "350.00",
+        description: "Weekly Groceries",
+        categoryId: defaultCategories[3].id,
+        date: "2025-01-05",
+        recurring: false,
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentTransactionId++,
+        userId: defaultUser.id,
+        type: "expense",
+        amount: "120.00",
+        description: "Gas and Transportation",
+        categoryId: defaultCategories[4].id,
+        date: "2025-01-03",
+        recurring: false,
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentTransactionId++,
+        userId: defaultUser.id,
+        type: "income",
+        amount: "800.00",
+        description: "Freelance Project",
+        categoryId: defaultCategories[1].id,
+        date: "2025-01-02",
+        recurring: false,
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentTransactionId++,
+        userId: defaultUser.id,
+        type: "expense",
+        amount: "85.00",
+        description: "Movie and Dinner",
+        categoryId: defaultCategories[5].id,
+        date: "2025-01-04",
+        recurring: false,
+        createdAt: new Date(),
+      },
+    ];
+
+    sampleTransactions.forEach(transaction => {
+      this.transactions.set(transaction.id, transaction);
+    });
+
+    // Create sample budgets
+    const sampleBudgets = [
+      {
+        id: this.currentBudgetId++,
+        userId: defaultUser.id,
+        categoryId: defaultCategories[3].id, // Groceries
+        amount: "400.00",
+        period: "monthly",
+        startDate: "2025-01-01",
+        endDate: "2025-01-31",
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentBudgetId++,
+        userId: defaultUser.id,
+        categoryId: defaultCategories[4].id, // Transportation
+        amount: "200.00",
+        period: "monthly",
+        startDate: "2025-01-01",
+        endDate: "2025-01-31",
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentBudgetId++,
+        userId: defaultUser.id,
+        categoryId: defaultCategories[5].id, // Entertainment
+        amount: "150.00",
+        period: "monthly",
+        startDate: "2025-01-01",
+        endDate: "2025-01-31",
+        createdAt: new Date(),
+      },
+    ];
+
+    sampleBudgets.forEach(budget => {
+      this.budgets.set(budget.id, budget);
+    });
+
+    // Create sample savings goals
+    const sampleGoals = [
+      {
+        id: this.currentSavingsGoalId++,
+        userId: defaultUser.id,
+        title: "Emergency Fund",
+        targetAmount: "10000.00",
+        currentAmount: "6800.00",
+        targetDate: "2025-12-31",
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentSavingsGoalId++,
+        userId: defaultUser.id,
+        title: "Vacation Trip",
+        targetAmount: "3000.00",
+        currentAmount: "1200.00",
+        targetDate: "2025-08-15",
+        createdAt: new Date(),
+      },
+      {
+        id: this.currentSavingsGoalId++,
+        userId: defaultUser.id,
+        title: "New Laptop",
+        targetAmount: "1500.00",
+        currentAmount: "500.00",
+        targetDate: "2025-06-01",
+        createdAt: new Date(),
+      },
+    ];
+
+    sampleGoals.forEach(goal => {
+      this.savingsGoals.set(goal.id, goal);
     });
   }
 
@@ -114,6 +253,24 @@ export class MemStorage implements IStorage {
       lastName: insertUser.lastName || null,
     };
     this.users.set(id, user);
+    
+    // Create default categories for new user
+    const defaultCategories = [
+      { name: "Salary", type: "income", userId: id },
+      { name: "Freelance", type: "income", userId: id },
+      { name: "Investment", type: "income", userId: id },
+      { name: "Groceries", type: "expense", userId: id },
+      { name: "Transportation", type: "expense", userId: id },
+      { name: "Entertainment", type: "expense", userId: id },
+      { name: "Shopping", type: "expense", userId: id },
+      { name: "Bills", type: "expense", userId: id },
+      { name: "Healthcare", type: "expense", userId: id },
+    ];
+
+    for (const category of defaultCategories) {
+      await this.createCategory(category);
+    }
+    
     return user;
   }
 

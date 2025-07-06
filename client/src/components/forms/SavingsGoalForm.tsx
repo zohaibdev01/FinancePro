@@ -40,6 +40,7 @@ export default function SavingsGoalForm() {
 
   const createSavingsGoal = useMutation({
     mutationFn: async (data: SavingsGoalFormData) => {
+      console.log('Creating savings goal with data:', data);
       const newId = Date.now();
       const newGoal = {
         id: newId,
@@ -53,12 +54,14 @@ export default function SavingsGoalForm() {
         updatedAt: new Date().toISOString(),
       };
       
+      console.log('Adding savings goal to local store:', newGoal);
       addSavingsGoal(newGoal);
       
       // Return local savings goal immediately - focus on local storage
       return newGoal;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Savings goal saved successfully:', data);
       setSavingsGoalModalOpen(false);
       form.reset();
       toast({
@@ -66,7 +69,8 @@ export default function SavingsGoalForm() {
         description: "Your savings goal has been saved to local storage.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Savings goal save error:', error);
       toast({
         title: "Error",
         description: "Failed to save savings goal. Please try again.",
@@ -76,12 +80,14 @@ export default function SavingsGoalForm() {
   });
 
   const onSubmit = (data: SavingsGoalFormData) => {
+    console.log('Savings goal form submitted with data:', data);
+    console.log('Form errors:', form.formState.errors);
     createSavingsGoal.mutate(data);
   };
 
   return (
     <Dialog open={savingsGoalModalOpen} onOpenChange={setSavingsGoalModalOpen}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md mx-3 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>Create Savings Goal</DialogTitle>
         </DialogHeader>

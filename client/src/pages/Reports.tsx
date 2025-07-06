@@ -155,7 +155,7 @@ export default function Reports() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
             <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Select period" />
@@ -184,7 +184,7 @@ export default function Reports() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Income</CardTitle>

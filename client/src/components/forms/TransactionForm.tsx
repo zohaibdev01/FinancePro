@@ -114,7 +114,7 @@ export default function TransactionForm() {
 
   return (
     <Dialog open={transactionModalOpen} onOpenChange={setTransactionModalOpen}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md mx-3 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>Add Transaction</DialogTitle>
         </DialogHeader>

@@ -18,14 +18,14 @@ import type { Category } from '@shared/schema';
 const transactionFormSchema = insertTransactionSchema.extend({
   amount: z.string().min(1, "Amount is required"),
   date: z.string().min(1, "Date is required"),
-  categoryId: z.number().min(1, "Category is required"),
+  categoryId: z.number().min(1, "Please select a category"),
 });
 
 type TransactionFormData = z.infer<typeof transactionFormSchema>;
 
 export default function TransactionForm() {
   const { transactionModalOpen, setTransactionModalOpen } = useUIStore();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const { categories = [], addTransaction } = useDataStore();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,7 +36,7 @@ export default function TransactionForm() {
       type: 'expense',
       amount: '',
       description: '',
-      categoryId: 0,
+      categoryId: 1,
       date: new Date().toISOString().split('T')[0],
       recurring: false,
     },
@@ -44,11 +44,16 @@ export default function TransactionForm() {
 
   const createTransaction = useMutation({
     mutationFn: async (data: TransactionFormData) => {
+      console.log('Creating transaction with data:', data);
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       // Create a unique ID for the transaction
       const newId = Date.now();
       const newTransaction = {
         id: newId,
-        userId: 1, // placeholder user ID
+        userId: user.id,
         type: data.type,
         description: data.description,
         amount: parseFloat(data.amount).toString(),
@@ -60,7 +65,8 @@ export default function TransactionForm() {
         updatedAt: new Date().toISOString(),
       };
       
-      // Add to local store
+      console.log('Adding transaction to local store:', newTransaction);
+      // Add to local store first
       addTransaction(newTransaction);
       
       // Also sync to server
@@ -69,8 +75,10 @@ export default function TransactionForm() {
           ...data,
           amount: parseFloat(data.amount).toString(),
         });
+        console.log('Server response:', response);
         return response.json();
       } catch (error) {
+        console.error('Server sync failed:', error);
         // If server fails, still keep local data
         return newTransaction;
       }
@@ -94,6 +102,16 @@ export default function TransactionForm() {
   });
 
   const onSubmit = (data: TransactionFormData) => {
+    console.log('Form submitted with data:', data);
+    console.log('Form errors:', form.formState.errors);
+    console.log('User:', user);
+    console.log('Categories:', categories);
+    
+    if (Object.keys(form.formState.errors).length > 0) {
+      console.log('Form has validation errors, not submitting');
+      return;
+    }
+    
     createTransaction.mutate(data);
   };
 
@@ -160,7 +178,7 @@ export default function TransactionForm() {
                   <FormLabel>Category</FormLabel>
                   <Select 
                     onValueChange={(value) => field.onChange(parseInt(value))} 
-                    value={field.value?.toString() || ""}
+                    value={field.value ? field.value.toString() : undefined}
                   >
                     <FormControl>
                       <SelectTrigger>

@@ -60,14 +60,14 @@ export default function Sidebar() {
             
             return (
               <Link key={item.name} href={item.href}>
-                <a className={cn(
-                  "flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100",
+                <div className={cn(
+                  "flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 cursor-pointer",
                   isActive && "text-gray-700 bg-blue-50 border-r-4 border-primary"
                 )}
                 onClick={() => setSidebarOpen(false)}>
                   <Icon className="mr-3" size={20} />
                   <span>{item.name}</span>
-                </a>
+                </div>
               </Link>
             );
           })}

@@ -1,0 +1,182 @@
+Create a personal finance management website that allows users to track their income, expenses, budgets, and savings with a user-friendly, responsive interface—built with React + TypeScript only (no Next.js).
+
+🛠️ Tech Stack:
+Frontend Framework: React (with Vite or Create React App)
+
+Language: TypeScript
+
+Styling: Tailwind CSS + shadcn/ui (or custom components)
+
+State Management: Zustand / Redux Toolkit
+
+Form Handling: React Hook Form + Zod
+
+Routing: React Router v6+
+
+Charts: Recharts or Chart.js
+
+Backend (optional for now): Node.js + Express.js + MongoDB (or Supabase/Firebase if you prefer)
+
+📁 App Pages/Structure:
+1. LoginPage.tsx
+Email/password login
+
+Validation + error feedback
+
+2. RegisterPage.tsx
+New user registration
+
+Input validation and confirmation
+
+3. Dashboard.tsx
+Overview: total balance, monthly income, expenses, budget progress
+
+Recent transactions
+
+4. Income.tsx
+Add/Edit/Delete income records
+
+Filter by category/date
+
+Table + chart view
+
+5. Expenses.tsx
+Add/Edit/Delete expenses
+
+Category tagging
+
+Recurring expense toggle
+
+6. Budget.tsx
+Set monthly budgets per category
+
+Visual indicators when near/exceeding limit
+
+7. Savings.tsx
+Set savings goals
+
+Show progress bars
+
+8. Reports.tsx
+Line/bar/pie charts
+
+Monthly/annual filters
+
+9. Settings.tsx
+Currency preference
+
+Dark/light mode
+
+Account settings
+
+🧠 Core Features:
+✅ Authentication:
+Email/password
+
+JWT-based auth OR Firebase Auth (optional)
+
+✅ Income/Expense Tracking:
+Manual entries with amount, category, description, date
+
+Recurring transactions support
+
+Category filtering and search
+
+✅ Budget Manager:
+Budget limits per category
+
+Visual feedback (progress bar, color-coded)
+
+✅ Savings Tracker:
+Define goals (e.g., vacation fund)
+
+Progress shown via charts or meters
+
+✅ Reporting:
+Interactive charts (income vs. expenses)
+
+Category breakdowns
+
+Time-based filters
+
+✅ Data Export:
+Export as .xlsx or .pdf
+
+CSV optional
+
+📦 Folder Structure (Suggested)
+css
+Copy
+Edit
+src/
+├── assets/
+├── components/
+│   ├── layout/
+│   ├── forms/
+│   └── charts/
+├── pages/
+│   ├── Dashboard.tsx
+│   ├── LoginPage.tsx
+│   ├── RegisterPage.tsx
+│   ├── Income.tsx
+│   ├── Expenses.tsx
+│   ├── Budget.tsx
+│   ├── Savings.tsx
+│   └── Reports.tsx
+├── routes/
+│   └── AppRouter.tsx
+├── services/
+│   └── api.ts (Axios calls or Firebase services)
+├── store/
+│   └── userStore.ts (Zustand or Redux slices)
+├── types/
+│   └── finance.d.ts
+├── utils/
+│   └── helpers.ts
+├── App.tsx
+├── main.tsx
+└── index.css
+🧾 Type Definitions Example (types/finance.d.ts)
+ts
+Copy
+Edit
+export interface Transaction {
+  id: string;
+  type: "income" | "expense";
+  category: string;
+  amount: number;
+  date: string;
+  note?: string;
+  recurring?: boolean;
+}
+
+export interface Budget {
+  category: string;
+  limit: number;
+  spent: number;
+}
+
+export interface SavingGoal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string;
+}
+🔒 Security Suggestions:
+Use HTTPS in production
+
+Hash passwords (if building backend)
+
+Protect routes using private route guards (React Router)
+
+🚀 Stretch Goals (Optional Later):
+Dark mode with theme toggle
+
+PWA support
+
+Drag & drop dashboard widgets
+
+Offline support with local storage or IndexedDB
+
+Mobile app using React Native with shared logic

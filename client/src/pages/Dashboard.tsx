@@ -9,6 +9,8 @@ import RecentTransactions from '@/components/dashboard/RecentTransactions';
 import SavingsGoals from '@/components/dashboard/SavingsGoals';
 import QuickActions from '@/components/dashboard/QuickActions';
 import TransactionForm from '@/components/forms/TransactionForm';
+import BudgetForm from '@/components/forms/BudgetForm';
+import SavingsGoalForm from '@/components/forms/SavingsGoalForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Transaction, Category, Budget, SavingsGoal } from '@shared/schema';
 import type { DashboardStats, ChartData, BudgetWithSpent } from '@/types/finance';
@@ -182,6 +184,8 @@ export default function Dashboard() {
       </div>
       
       <TransactionForm />
+      <BudgetForm />
+      <SavingsGoalForm />
     </Layout>
   );
 }

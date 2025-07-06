@@ -2,9 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MinusCircle, Calendar, ChartBar, Download } from 'lucide-react';
 import { useUIStore } from '@/store/useFinanceStore';
+import { useLocation } from 'wouter';
 
 export default function QuickActions() {
-  const { setTransactionModalOpen } = useUIStore();
+  const { setTransactionModalOpen, setBudgetModalOpen } = useUIStore();
+  const [, setLocation] = useLocation();
 
   const handleAddIncome = () => {
     setTransactionModalOpen(true);
@@ -15,8 +17,7 @@ export default function QuickActions() {
   };
 
   const handleExportData = () => {
-    // TODO: Implement data export functionality
-    console.log('Export data');
+    setLocation('/reports');
   };
 
   return (
@@ -44,6 +45,7 @@ export default function QuickActions() {
           
           <Button 
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 h-auto flex flex-col items-center"
+            onClick={() => setBudgetModalOpen(true)}
           >
             <Calendar size={24} className="mb-2" />
             <span>Set Budget</span>
@@ -51,6 +53,7 @@ export default function QuickActions() {
           
           <Button 
             className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-3 px-4 h-auto flex flex-col items-center"
+            onClick={() => setLocation('/reports')}
           >
             <ChartBar size={24} className="mb-2" />
             <span>View Reports</span>

@@ -18,7 +18,9 @@ import type { Category } from '@shared/schema';
 const transactionFormSchema = insertTransactionSchema.extend({
   amount: z.string().min(1, "Amount is required"),
   date: z.string().min(1, "Date is required"),
-  categoryId: z.number().min(1, "Category is required"),
+}).refine((data) => data.categoryId && data.categoryId > 0, {
+  message: "Category is required",
+  path: ["categoryId"],
 });
 
 type TransactionFormData = z.infer<typeof transactionFormSchema>;
@@ -35,7 +37,6 @@ export default function TransactionForm() {
       type: 'expense',
       amount: '',
       description: '',
-      categoryId: undefined,
       date: new Date().toISOString().split('T')[0],
       recurring: false,
     },
@@ -48,11 +49,14 @@ export default function TransactionForm() {
 
   const createTransaction = useMutation({
     mutationFn: async (data: TransactionFormData) => {
+      console.log('Submitting transaction data:', data);
       const response = await apiRequest('POST', '/api/transactions', {
         ...data,
         amount: parseFloat(data.amount).toString(),
       });
-      return response.json();
+      const result = await response.json();
+      console.log('Transaction response:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
@@ -63,7 +67,8 @@ export default function TransactionForm() {
         description: "Your transaction has been saved successfully.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Transaction error:', error);
       toast({
         title: "Error",
         description: "Failed to save transaction. Please try again.",
@@ -73,11 +78,20 @@ export default function TransactionForm() {
   });
 
   const onSubmit = (data: TransactionFormData) => {
+    console.log('Form submitted with data:', data);
+    console.log('Form errors:', form.formState.errors);
     createTransaction.mutate(data);
   };
 
   const transactionType = form.watch('type');
   const filteredCategories = categories.filter(cat => cat.type === transactionType);
+  
+  // Debug logs
+  if (transactionModalOpen) {
+    console.log('Transaction type:', transactionType);
+    console.log('All categories:', categories);
+    console.log('Filtered categories:', filteredCategories);
+  }
 
   return (
     <Dialog open={transactionModalOpen} onOpenChange={setTransactionModalOpen}>
@@ -135,7 +149,10 @@ export default function TransactionForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                  <Select 
+                    onValueChange={(value) => field.onChange(parseInt(value))} 
+                    value={field.value?.toString() || ""}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
